@@ -15,7 +15,7 @@ import {
 } from 'chart.js'
 import { useNavigate } from 'react-router-dom'
 import { ArrowLeftIcon, ScaleIcon } from '@heroicons/react/24/outline'
-import './Progress.css'
+import './progress.css'
 
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend, Filler)
 

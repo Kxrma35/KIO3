@@ -3,7 +3,7 @@ import { createUserWithEmailAndPassword } from 'firebase/auth'
 import { auth } from '../firebase'
 import { Link } from 'react-router-dom'
 import { BoltIcon } from '@heroicons/react/24/solid'
-import './Auth.css'
+import './auth.css'
 
 function Signup() {
   const [email, setEmail] = useState('')
