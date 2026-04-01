@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { CpuChipIcon, XMarkIcon, PaperAirplaneIcon } from '@heroicons/react/24/outline'
-import './chatbot.css'
+import './ChatBot.css'
 
 function ChatBot({ totalCalories, totalProtein, calorieGoal, proteinGoal, meals }) {
   const [open, setOpen] = useState(false)

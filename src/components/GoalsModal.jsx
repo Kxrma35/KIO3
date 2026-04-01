@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { db, auth } from '../firebase'
 import { doc, setDoc } from 'firebase/firestore'
 import { XMarkIcon } from '@heroicons/react/24/outline'
-import './goalsmodal.css'
+import './GoalsModal.css'
 
 function GoalsModal({ currentCalories, currentProtein, onSave, onClose }) {
   const [calories, setCalories] = useState(currentCalories)

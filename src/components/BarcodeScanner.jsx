@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { BrowserMultiFormatReader } from '@zxing/library'
 import { XMarkIcon } from '@heroicons/react/24/outline'
-import './barcodescanner.css'
+import './BarcodeScanner.css'
 
 function BarcodeScanner({ onResult, onClose }) {
   const videoRef = useRef(null)
