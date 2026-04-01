@@ -1,0 +1,48 @@
+@import url('https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&family=DM+Sans:wght@300;400;500&display=swap');
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+:root {
+  --primary: #4F6EF7;
+  --primary-light: #EEF1FF;
+  --primary-dark: #3451D1;
+  --accent: #6C8FFF;
+  --success: #4CAF82;
+  --warning: #F7A84F;
+  --danger: #F76F6F;
+  --bg: #F4F6FB;
+  --card: #FFFFFF;
+  --text: #1A1D2E;
+  --text-muted: #8B90A7;
+  --border: #E8EAF2;
+  --shadow: 0 4px 24px rgba(79, 110, 247, 0.08);
+  --shadow-lg: 0 8px 40px rgba(79, 110, 247, 0.15);
+  --radius: 20px;
+  --radius-sm: 12px;
+}
+
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+}
+
+h1, h2, h3, h4 {
+  font-family: 'Sora', sans-serif;
+}
+
+button {
+  font-family: 'DM Sans', sans-serif;
+  cursor: pointer;
+  border: none;
+  outline: none;
+}
+
+input {
+  font-family: 'DM Sans', sans-serif;
+}

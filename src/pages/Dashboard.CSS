@@ -1,0 +1,368 @@
+.dashboard {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 1.5rem 1rem 4rem;
+  min-height: 100vh;
+  background: var(--bg);
+}
+
+.dash-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.dash-greeting {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+.dash-name {
+  font-size: 1.5rem;
+  font-weight: 700;
+  text-transform: capitalize;
+}
+
+.logout-btn {
+  background: var(--border);
+  color: var(--text-muted);
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  transition: background 0.2s;
+}
+
+.logout-btn:hover {
+  background: #dde0ee;
+}
+
+.calorie-card {
+  background: linear-gradient(135deg, var(--primary) 0%, #6C8FFF 100%);
+  border-radius: var(--radius);
+  padding: 1.75rem;
+  color: white;
+  margin-bottom: 1rem;
+  box-shadow: 0 8px 24px rgba(79, 110, 247, 0.3);
+}
+
+.calorie-top {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 0.5rem;
+}
+
+.calorie-label {
+  font-size: 0.9rem;
+  opacity: 0.9;
+  font-weight: 500;
+}
+
+.calorie-eaten {
+  font-size: 0.85rem;
+  opacity: 0.8;
+  margin-bottom: 0.25rem;
+}
+
+.calorie-left {
+  font-size: 3.5rem;
+  font-weight: 700;
+  font-family: 'Sora', sans-serif;
+  line-height: 1;
+}
+
+.calorie-sub {
+  font-size: 0.8rem;
+  opacity: 0.8;
+  margin-bottom: 1rem;
+  letter-spacing: 0.05em;
+}
+
+.progress-bar {
+  background: rgba(255,255,255,0.25);
+  border-radius: 100px;
+  height: 8px;
+  overflow: hidden;
+  margin-bottom: 0.5rem;
+}
+
+.progress-fill {
+  background: white;
+  height: 100%;
+  border-radius: 100px;
+  transition: width 0.5s ease;
+}
+
+.calorie-footer {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.8rem;
+  opacity: 0.8;
+}
+
+.macros-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.macro-card {
+  background: white;
+  border-radius: var(--radius-sm);
+  padding: 1rem;
+  box-shadow: var(--shadow);
+  text-align: center;
+}
+
+.macro-value {
+  font-size: 1.4rem;
+  font-weight: 700;
+  font-family: 'Sora', sans-serif;
+  color: var(--text);
+}
+
+.macro-label {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  margin-bottom: 0.5rem;
+}
+
+.macro-bar {
+  background: var(--border);
+  border-radius: 100px;
+  height: 5px;
+  overflow: hidden;
+  margin-bottom: 0.25rem;
+}
+
+.macro-fill {
+  height: 100%;
+  border-radius: 100px;
+  transition: width 0.5s ease;
+}
+
+.macro-fill.protein { background: var(--success); }
+.macro-fill.meals { background: var(--warning); }
+.macro-fill.remaining { background: var(--primary); }
+
+.macro-goal {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+}
+
+.section-card {
+  background: white;
+  border-radius: var(--radius);
+  padding: 1.5rem;
+  margin-bottom: 1rem;
+  box-shadow: var(--shadow);
+}
+
+.section-title {
+  font-size: 1rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+  color: var(--text);
+}
+
+.add-meal-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.add-meal-form input,
+.weight-form input {
+  padding: 0.85rem 1rem;
+  border: 2px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-size: 0.9rem;
+  color: var(--text);
+  background: var(--bg);
+  outline: none;
+  transition: border-color 0.2s;
+  width: 100%;
+}
+
+.add-meal-form input:focus,
+.weight-form input:focus {
+  border-color: var(--primary);
+  background: white;
+}
+
+.add-meal-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+}
+
+.add-btn {
+  padding: 0.85rem;
+  background: var(--primary);
+  color: white;
+  border-radius: var(--radius-sm);
+  font-size: 0.95rem;
+  font-weight: 600;
+  transition: background 0.2s, transform 0.1s;
+}
+
+.add-btn:hover {
+  background: var(--primary-dark);
+  transform: translateY(-1px);
+}
+
+.meal-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.meal-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.85rem 1rem;
+  background: var(--bg);
+  border-radius: var(--radius-sm);
+}
+
+.meal-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.meal-name {
+  font-weight: 500;
+  font-size: 0.9rem;
+}
+
+.meal-protein {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+.meal-item-right {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.meal-calories {
+  font-weight: 600;
+  color: var(--primary);
+  font-size: 0.9rem;
+}
+
+.delete-btn {
+  background: #FFF0F0;
+  color: var(--danger);
+  border-radius: 50%;
+  width: 28px;
+  height: 28px;
+  font-size: 0.75rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s;
+}
+
+.delete-btn:hover {
+  background: #FFD6D6;
+}
+
+.empty-text {
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  text-align: center;
+  padding: 1rem 0;
+}
+
+.weight-form {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.weight-form .add-btn {
+  white-space: nowrap;
+  padding: 0.85rem 1.5rem;
+}
+
+.desktop-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+}
+
+@media (min-width: 768px) {
+  .dashboard {
+    padding: 2.5rem 3rem 4rem;
+  }
+
+  .dash-header {
+    margin-bottom: 2rem;
+  }
+
+  .dash-name {
+    font-size: 2rem;
+  }
+
+  .desktop-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .calorie-card {
+    padding: 2.5rem;
+  }
+
+  .calorie-left {
+    font-size: 5rem;
+  }
+
+  .macros-row {
+    gap: 1rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .dashboard {
+    padding: 2.5rem 4rem 4rem;
+  }
+}
+
+.dash-actions {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.btn-icon {
+  width: 16px;
+  height: 16px;
+  display: inline;
+  vertical-align: middle;
+  margin-right: 4px;
+}
+
+.inline-icon {
+  width: 18px;
+  height: 18px;
+  display: inline;
+  vertical-align: middle;
+  margin-right: 4px;
+}
+
+.title-icon {
+  width: 20px;
+  height: 20px;
+  display: inline;
+  vertical-align: middle;
+  margin-right: 6px;
+  color: var(--primary);
+}
+
+.delete-icon {
+  width: 14px;
+  height: 14px;
+}
