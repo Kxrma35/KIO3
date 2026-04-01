@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { auth, db } from '../firebase'
 import { signOut } from 'firebase/auth'
-import { collection, addDoc, query, where, onSnapshot, deleteDoc, doc } from 'firebase/firestore'
+import { collection, addDoc, query, where, onSnapshot, deleteDoc, doc, getDoc } from 'firebase/firestore'
 import { Bar } from 'react-chartjs-2'
 import {
   Chart as ChartJS,
@@ -20,15 +20,16 @@ import {
   ArrowTrendingUpIcon,
   TrashIcon,
   ArrowRightOnRectangleIcon,
-  PlusCircleIcon
+  PlusCircleIcon,
+  AdjustmentsHorizontalIcon,
+  QrCodeIcon
 } from '@heroicons/react/24/outline'
 import ChatBot from '../components/ChatBot'
+import GoalsModal from '../components/GoalsModal'
+import BarcodeScanner from '../components/BarcodeScanner'
 import './Dashboard.css'
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend)
-
-const CALORIE_GOAL = 3500
-const PROTEIN_GOAL = 180
 
 function Dashboard() {
   const [meals, setMeals] = useState([])
@@ -37,10 +38,27 @@ function Dashboard() {
   const [protein, setProtein] = useState('')
   const [weight, setWeight] = useState('')
   const [weeklyData, setWeeklyData] = useState([])
+  const [calorieGoal, setCalorieGoal] = useState(3500)
+  const [proteinGoal, setProteinGoal] = useState(180)
+  const [showGoals, setShowGoals] = useState(false)
+  const [showScanner, setShowScanner] = useState(false)
+  const [streak, setStreak] = useState(0)
+  const [bestStreak, setBestStreak] = useState(0)
   const user = auth.currentUser
   const navigate = useNavigate()
 
   const today = new Date().toISOString().split('T')[0]
+
+  useEffect(() => {
+    const loadGoals = async () => {
+      const snap = await getDoc(doc(db, 'goals', user.uid))
+      if (snap.exists()) {
+        setCalorieGoal(snap.data().calories)
+        setProteinGoal(snap.data().protein)
+      }
+    }
+    loadGoals()
+  }, [])
 
   useEffect(() => {
     const q = query(
@@ -78,6 +96,51 @@ function Dashboard() {
     return unsub
   }, [])
 
+  useEffect(() => {
+    const q = query(
+      collection(db, 'meals'),
+      where('uid', '==', user.uid)
+    )
+    const unsub = onSnapshot(q, (snap) => {
+      const allMeals = snap.docs.map(doc => doc.data())
+
+      const dailyCalories = {}
+      allMeals.forEach(m => {
+        dailyCalories[m.date] = (dailyCalories[m.date] || 0) + m.calories
+      })
+
+      const sortedDates = Object.keys(dailyCalories).sort()
+      let best = 0
+      let temp = 0
+
+      sortedDates.forEach(date => {
+        if (dailyCalories[date] >= calorieGoal) {
+          temp++
+          if (temp > best) best = temp
+        } else {
+          temp = 0
+        }
+      })
+
+      let currentStreak = 0
+      const todayDate = new Date()
+      for (let i = 0; i < 365; i++) {
+        const d = new Date(todayDate)
+        d.setDate(d.getDate() - i)
+        const dateStr = d.toISOString().split('T')[0]
+        if (dailyCalories[dateStr] >= calorieGoal) {
+          currentStreak++
+        } else {
+          break
+        }
+      }
+
+      setStreak(currentStreak)
+      setBestStreak(best)
+    })
+    return unsub
+  }, [calorieGoal])
+
   const addMeal = async () => {
     if (!mealName || !calories) return
     await addDoc(collection(db, 'meals'), {
@@ -110,9 +173,9 @@ function Dashboard() {
 
   const totalCalories = meals.reduce((sum, m) => sum + m.calories, 0)
   const totalProtein = meals.reduce((sum, m) => sum + m.protein, 0)
-  const caloriePercent = Math.min((totalCalories / CALORIE_GOAL) * 100, 100)
-  const proteinPercent = Math.min((totalProtein / PROTEIN_GOAL) * 100, 100)
-  const caloriesLeft = CALORIE_GOAL - totalCalories
+  const caloriePercent = Math.min((totalCalories / calorieGoal) * 100, 100)
+  const proteinPercent = Math.min((totalProtein / proteinGoal) * 100, 100)
+  const caloriesLeft = calorieGoal - totalCalories
 
   return (
     <div className="dashboard">
@@ -124,6 +187,9 @@ function Dashboard() {
           <h2 className="dash-name">{user.email.split('@')[0]}</h2>
         </div>
         <div className="dash-actions">
+          <button className="logout-btn" onClick={() => setShowGoals(true)}>
+            <AdjustmentsHorizontalIcon className="btn-icon" /> Goals
+          </button>
           <button className="logout-btn" onClick={() => navigate('/progress')}>
             <ArrowTrendingUpIcon className="btn-icon" /> Progress
           </button>
@@ -147,7 +213,7 @@ function Dashboard() {
           <div className="progress-fill" style={{ width: `${caloriePercent}%` }}></div>
         </div>
         <div className="calorie-footer">
-          <span>Goal: {CALORIE_GOAL} kcal</span>
+          <span>Goal: {calorieGoal} kcal</span>
           <span>{Math.round(caloriePercent)}%</span>
         </div>
       </div>
@@ -160,7 +226,7 @@ function Dashboard() {
           <div className="macro-bar">
             <div className="macro-fill protein" style={{ width: `${proteinPercent}%` }}></div>
           </div>
-          <div className="macro-goal">/ {PROTEIN_GOAL}g</div>
+          <div className="macro-goal">/ {proteinGoal}g</div>
         </div>
         <div className="macro-card">
           <div className="macro-value">{meals.length}</div>
@@ -171,8 +237,16 @@ function Dashboard() {
           <div className="macro-goal">today</div>
         </div>
         <div className="macro-card">
-          <div className="macro-value">{totalCalories > CALORIE_GOAL ? '+' + (totalCalories - CALORIE_GOAL) : caloriesLeft}</div>
-          <div className="macro-label">{totalCalories > CALORIE_GOAL ? 'Over' : 'Remaining'}</div>
+          <div className="macro-value streak-value">{streak}</div>
+          <div className="macro-label">Day Streak</div>
+          <div className="macro-bar">
+            <div className="macro-fill streak" style={{ width: `${Math.min(streak * 10, 100)}%` }}></div>
+          </div>
+          <div className="macro-goal">best: {bestStreak}</div>
+        </div>
+        <div className="macro-card">
+          <div className="macro-value">{totalCalories > calorieGoal ? '+' + (totalCalories - calorieGoal) : caloriesLeft}</div>
+          <div className="macro-label">{totalCalories > calorieGoal ? 'Over' : 'Remaining'}</div>
           <div className="macro-bar">
             <div className="macro-fill remaining" style={{ width: `${caloriePercent}%` }}></div>
           </div>
@@ -187,6 +261,9 @@ function Dashboard() {
         <div className="section-card">
           <h3 className="section-title">
             <PlusCircleIcon className="title-icon" /> Add Meal
+            <button className="scan-btn" onClick={() => setShowScanner(true)}>
+              <QrCodeIcon style={{ width: 18, height: 18 }} /> Scan
+            </button>
           </h3>
           <div className="add-meal-form">
             <input
@@ -294,11 +371,35 @@ function Dashboard() {
 
       </div>
 
+      {showGoals && (
+        <GoalsModal
+          currentCalories={calorieGoal}
+          currentProtein={proteinGoal}
+          onSave={(cal, pro) => {
+            setCalorieGoal(cal)
+            setProteinGoal(pro)
+          }}
+          onClose={() => setShowGoals(false)}
+        />
+      )}
+
+      {showScanner && (
+        <BarcodeScanner
+          onResult={(product) => {
+            setMealName(product.name)
+            setCalories(String(product.calories))
+            setProtein(String(product.protein))
+            setShowScanner(false)
+          }}
+          onClose={() => setShowScanner(false)}
+        />
+      )}
+
       <ChatBot
         totalCalories={totalCalories}
         totalProtein={totalProtein}
-        calorieGoal={CALORIE_GOAL}
-        proteinGoal={PROTEIN_GOAL}
+        calorieGoal={calorieGoal}
+        proteinGoal={proteinGoal}
         meals={meals}
       />
 

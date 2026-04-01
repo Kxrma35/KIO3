@@ -24,6 +24,13 @@
   text-transform: capitalize;
 }
 
+.dash-actions {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
 .logout-btn {
   background: var(--border);
   color: var(--text-muted);
@@ -32,10 +39,35 @@
   font-size: 0.85rem;
   font-weight: 500;
   transition: background 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
 }
 
 .logout-btn:hover {
   background: #dde0ee;
+}
+
+.btn-icon {
+  width: 16px;
+  height: 16px;
+}
+
+.inline-icon {
+  width: 18px;
+  height: 18px;
+  display: inline;
+  vertical-align: middle;
+  margin-right: 4px;
+}
+
+.title-icon {
+  width: 20px;
+  height: 20px;
+  display: inline;
+  vertical-align: middle;
+  margin-right: 6px;
+  color: var(--primary);
 }
 
 .calorie-card {
@@ -103,7 +135,7 @@
 
 .macros-row {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(2, 1fr);
   gap: 0.75rem;
   margin-bottom: 1rem;
 }
@@ -146,6 +178,8 @@
 .macro-fill.protein { background: var(--success); }
 .macro-fill.meals { background: var(--warning); }
 .macro-fill.remaining { background: var(--primary); }
+.macro-fill.streak { background: #F7A84F; }
+.streak-value { color: #F7A84F; }
 
 .macro-goal {
   font-size: 0.7rem;
@@ -165,6 +199,8 @@
   font-weight: 600;
   margin-bottom: 1rem;
   color: var(--text);
+  display: flex;
+  align-items: center;
 }
 
 .add-meal-form {
@@ -262,7 +298,6 @@
   border-radius: 50%;
   width: 28px;
   height: 28px;
-  font-size: 0.75rem;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -271,6 +306,11 @@
 
 .delete-btn:hover {
   background: #FFD6D6;
+}
+
+.delete-icon {
+  width: 14px;
+  height: 14px;
 }
 
 .empty-text {
@@ -313,6 +353,11 @@
     grid-template-columns: 1fr 1fr;
   }
 
+  .macros-row {
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1rem;
+  }
+
   .calorie-card {
     padding: 2.5rem;
   }
@@ -320,49 +365,10 @@
   .calorie-left {
     font-size: 5rem;
   }
-
-  .macros-row {
-    gap: 1rem;
-  }
 }
 
 @media (min-width: 1024px) {
   .dashboard {
     padding: 2.5rem 4rem 4rem;
   }
-}
-
-.dash-actions {
-  display: flex;
-  gap: 0.75rem;
-}
-
-.btn-icon {
-  width: 16px;
-  height: 16px;
-  display: inline;
-  vertical-align: middle;
-  margin-right: 4px;
-}
-
-.inline-icon {
-  width: 18px;
-  height: 18px;
-  display: inline;
-  vertical-align: middle;
-  margin-right: 4px;
-}
-
-.title-icon {
-  width: 20px;
-  height: 20px;
-  display: inline;
-  vertical-align: middle;
-  margin-right: 6px;
-  color: var(--primary);
-}
-
-.delete-icon {
-  width: 14px;
-  height: 14px;
 }
