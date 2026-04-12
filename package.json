@@ -12,6 +12,9 @@
     "deploy": "gh-pages -d dist"
   },
   "dependencies": {
+    "@capacitor/android": "^8.3.0",
+    "@capacitor/cli": "^8.3.0",
+    "@capacitor/core": "^8.3.0",
     "@heroicons/react": "^2.2.0",
     "@zxing/library": "^0.21.3",
     "chart.js": "^4.5.1",
