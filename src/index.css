@@ -1,48 +1,81 @@
-@import url('https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&family=DM+Sans:wght@300;400;500&display=swap');
+/* ============================================
+   BULKING TRACKER — Global Design Tokens
+   Soft Pastel Redesign
+   Add this to your index.css or App.css
+   ============================================ */
 
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800;900&family=Nunito+Sans:wght@400;500;600&display=swap');
 
 :root {
-  --primary: #4F6EF7;
-  --primary-light: #EEF1FF;
-  --primary-dark: #3451D1;
-  --accent: #6C8FFF;
-  --success: #4CAF82;
-  --warning: #F7A84F;
-  --danger: #F76F6F;
-  --bg: #F4F6FB;
-  --card: #FFFFFF;
-  --text: #1A1D2E;
-  --text-muted: #8B90A7;
-  --border: #E8EAF2;
-  --shadow: 0 4px 24px rgba(79, 110, 247, 0.08);
-  --shadow-lg: 0 8px 40px rgba(79, 110, 247, 0.15);
-  --radius: 20px;
-  --radius-sm: 12px;
+  /* Core palette */
+  --primary:        #FF6B6B;
+  --primary-light:  #FFF0F0;
+  --primary-dark:   #E85555;
+
+  --green:          #34C77B;
+  --green-light:    #E8FBF0;
+
+  --purple:         #A78BFA;
+  --purple-light:   #F3F0FF;
+
+  --orange:         #FB923C;
+  --orange-light:   #FFF4EC;
+
+  --blue:           #60A5FA;
+  --blue-light:     #EFF6FF;
+
+  --yellow:         #FBBF24;
+  --yellow-light:   #FFFBEB;
+
+  /* Neutrals */
+  --bg:             #F6F5FB;
+  --bg-card:        #FFFFFF;
+  --border:         #EEECF8;
+  --text:           #1E1B3A;
+  --text-muted:     #9B96B8;
+  --text-light:     #C5C1DC;
+
+  /* Semantic */
+  --success:        #34C77B;
+  --danger:         #FF6B6B;
+  --warning:        #FBBF24;
+
+  /* Radii */
+  --radius:         24px;
+  --radius-sm:      14px;
+  --radius-xs:      10px;
+
+  /* Shadows */
+  --shadow:         0 4px 20px rgba(100, 90, 160, 0.08);
+  --shadow-lg:      0 12px 40px rgba(100, 90, 160, 0.14);
+  --shadow-card:    0 2px 12px rgba(100, 90, 160, 0.06);
+
+  /* Fonts */
+  --font-display:   'Nunito', sans-serif;
+  --font-body:      'Nunito Sans', sans-serif;
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
 }
 
 body {
-  font-family: 'DM Sans', sans-serif;
+  font-family: var(--font-body);
   background: var(--bg);
   color: var(--text);
-  min-height: 100vh;
-}
-
-h1, h2, h3, h4 {
-  font-family: 'Sora', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 button {
-  font-family: 'DM Sans', sans-serif;
-  cursor: pointer;
   border: none;
-  outline: none;
+  cursor: pointer;
+  font-family: var(--font-body);
+  background: none;
 }
 
 input {
-  font-family: 'DM Sans', sans-serif;
+  font-family: var(--font-body);
 }
