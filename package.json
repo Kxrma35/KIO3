@@ -3,16 +3,14 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
-
-    "homepage": "https://kxrma35.github.io/bulking-tracker",
-
+  "homepage": "https://kxrma35.github.io/bulking-tracker",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
     "lint": "eslint .",
     "preview": "vite preview",
     "predeploy": "npm run build",
-    "deploy": "gh-pages -d dist"
+    "deploy": "vite build && gh-pages -d dist"
   },
   "dependencies": {
     "@capacitor/android": "^8.3.0",
