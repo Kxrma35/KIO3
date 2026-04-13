@@ -3,6 +3,9 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
+
+    "homepage": "https://kxrma35.github.io/bulking-tracker",
+
   "scripts": {
     "dev": "vite",
     "build": "vite build",
