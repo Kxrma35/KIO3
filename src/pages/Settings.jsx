@@ -3,7 +3,8 @@ import { auth, db } from '../firebase'
 import { doc, getDoc, setDoc } from 'firebase/firestore'
 import { signOut } from 'firebase/auth'
 import { useNavigate } from 'react-router-dom'
-import { ArrowLeftIcon, ArrowRightOnRectangleIcon, Cog6ToothIcon } from '@heroicons/react/24/outline'
+import { ArrowLeftIcon, ArrowRightOnRectangleIcon, ChatBubbleLeftRightIcon, Cog6ToothIcon, ChartBarSquareIcon } from '@heroicons/react/24/outline'
+import { isAdminEmail } from '../utils/admin'
 import './Settings.css'
 
 function roundInt(n) {
@@ -27,6 +28,7 @@ function calcTargets({ phase, weightKg }) {
 export default function Settings() {
   const user = auth.currentUser
   const navigate = useNavigate()
+  const isAdmin = isAdminEmail(user?.email)
 
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
@@ -157,6 +159,18 @@ export default function Settings() {
               {saving ? 'Saving...' : 'Save Settings'}
             </button>
           </>
+        )}
+      </div>
+
+      <div className="settings-card">
+        <h3 className="section-title">Community</h3>
+        <button className="secondary-btn" onClick={() => navigate('/feedback')}>
+          <ChatBubbleLeftRightIcon className="secondary-icon" /> Leave Feedback
+        </button>
+        {isAdmin && (
+          <button className="secondary-btn secondary-btn-admin" onClick={() => navigate('/admin-feedback')}>
+            <ChartBarSquareIcon className="secondary-icon" /> Feedback Dashboard
+          </button>
         )}
       </div>
 

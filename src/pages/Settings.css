@@ -208,6 +208,30 @@
   cursor: not-allowed;
 }
 
+.secondary-btn {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.85rem;
+  background: var(--purple-light);
+  color: var(--purple);
+  border-radius: var(--radius-xs);
+  font-size: 0.95rem;
+  font-weight: 800;
+  font-family: var(--font-display);
+}
+
+.secondary-icon {
+  width: 18px;
+  height: 18px;
+}
+
+.secondary-btn-admin {
+  margin-top: 0.6rem;
+}
+
 .danger-btn {
   width: 100%;
   display: flex;
