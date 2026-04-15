@@ -3,7 +3,7 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
-  "homepage": "https://github.com/Kxrma35/KIO3.git",
+  "homepage": "https://kxrma35.github.io/KIO3",
   "scripts": {
     "dev": "vite",
     "server": "node server/index.js",
