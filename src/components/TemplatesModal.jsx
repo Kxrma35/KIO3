@@ -38,19 +38,30 @@ export default function TemplatesModal({ mealsToday, onClose }) {
   const saveTemplate = async () => {
     if (!name.trim() || cleanMeals.length === 0) return
     setSaving(true)
-    await addDoc(collection(db, 'templates'), {
+    
+    // Clear form immediately
+    setName('')
+    
+    // Fire the save in background
+    addDoc(collection(db, 'templates'), {
       uid: user.uid,
       name: name.trim(),
       meals: cleanMeals,
       createdAt: new Date()
+    }).catch(err => {
+      console.error('Save template error:', err)
+    }).finally(() => {
+      setSaving(false)
     })
-    setName('')
-    setSaving(false)
   }
 
   const applyTemplate = async (t) => {
     if (!t?.meals?.length) return
     setApplyingId(t.id)
+    
+    // Close modal immediately
+    onClose()
+    
     const date = todayKey()
     const ops = t.meals.map(m => addDoc(collection(db, 'meals'), {
       uid: user.uid,
@@ -62,9 +73,11 @@ export default function TemplatesModal({ mealsToday, onClose }) {
       createdAt: new Date(),
       fromTemplateId: t.id
     }))
-    await Promise.all(ops)
-    setApplyingId(null)
-    onClose()
+    
+    // Fire all meal creations in background
+    Promise.all(ops)
+      .catch(err => console.error('Apply template error:', err))
+      .finally(() => setApplyingId(null))
   }
 
   return (

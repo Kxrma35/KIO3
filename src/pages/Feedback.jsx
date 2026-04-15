@@ -32,20 +32,24 @@ export default function Feedback() {
     if (!suggestion.trim()) return
     setSaving(true)
     setSavedMsg('')
-    try {
-      await addDoc(collection(db, 'feedback'), {
-        uid: user.uid,
-        email: user.email || '',
-        rating,
-        suggestion: suggestion.trim(),
-        createdAt: new Date()
-      })
-      setSuggestion('')
-      setRating(0)
-      setSavedMsg('Thanks! Your feedback was saved.')
-    } finally {
+    
+    // Clear form immediately and show success message
+    setSuggestion('')
+    setRating(0)
+    setSavedMsg('Thanks! Your feedback was saved.')
+    
+    // Fire the save in background
+    addDoc(collection(db, 'feedback'), {
+      uid: user.uid,
+      email: user.email || '',
+      rating,
+      suggestion: suggestion.trim(),
+      createdAt: new Date()
+    }).catch(err => {
+      console.error('Feedback submit error:', err)
+    }).finally(() => {
       setSaving(false)
-    }
+    })
   }
 
   return (

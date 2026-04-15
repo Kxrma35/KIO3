@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { auth, db, storage } from '../firebase'
-import { collection, addDoc, query, where, onSnapshot, deleteDoc, doc, getDoc, getDocFromCache } from 'firebase/firestore'
+import { collection, addDoc, query, where, onSnapshot, deleteDoc, doc } from 'firebase/firestore'
 import { getDownloadURL, ref, uploadBytes } from 'firebase/storage'
 import { Bar } from 'react-chartjs-2'
 import {
@@ -102,6 +102,7 @@ export default function Dashboard() {
   const [editingMeal, setEditingMeal]   = useState(null)
   const [streak, setStreak]             = useState(0)
   const [bestStreak, setBestStreak]     = useState(0)
+  const [customName, setCustomName]     = useState('')
   const user     = auth.currentUser
   const navigate = useNavigate()
   const location = useLocation()
@@ -115,7 +116,6 @@ export default function Dashboard() {
   useEffect(() => {
     let alive = true
     const key = `kio3-goals-${user.uid}`
-    const ref = doc(db, 'goals', user.uid)
 
     // Instant local read to avoid waiting on network.
     const localRaw = localStorage.getItem(key)
@@ -125,48 +125,36 @@ export default function Dashboard() {
         if (alive) {
           if (local?.calories) setCalorieGoal(Number(local.calories))
           if (local?.protein) setProteinGoal(Number(local.protein))
+          if (local?.customName) setCustomName(local.customName)
         }
       } catch {
         // Ignore malformed local cache.
       }
     }
 
-    ;(async () => {
-      try {
-        // Firestore cache is usually faster than network.
-        const cached = await getDocFromCache(ref)
-        if (alive && cached.exists()) {
-          const d = cached.data()
-          if (d?.calories) setCalorieGoal(Number(d.calories))
-          if (d?.protein) setProteinGoal(Number(d.protein))
-          localStorage.setItem(key, JSON.stringify({
-            calories: Number(d.calories) || 3500,
-            protein: Number(d.protein) || 180,
-            updatedAt: Date.now()
-          }))
-        }
-      } catch {
-        // Cache may be empty on first load.
+    // Real-time listener for goals document - updates whenever settings are saved
+    const unsub = onSnapshot(doc(db, 'goals', user.uid), (snap) => {
+      if (!alive) return
+      if (snap.exists()) {
+        const d = snap.data()
+        if (d?.calories) setCalorieGoal(Number(d.calories))
+        if (d?.protein) setProteinGoal(Number(d.protein))
+        if (d?.customName) setCustomName(d.customName)
+        localStorage.setItem(key, JSON.stringify({
+          calories: Number(d.calories) || 3500,
+          protein: Number(d.protein) || 180,
+          customName: d.customName || '',
+          updatedAt: Date.now()
+        }))
       }
+    }, (err) => {
+      console.error('Goals listener error:', err)
+    })
 
-      try {
-        const snap = await getDoc(ref)
-        if (alive && snap.exists()) {
-          const d = snap.data()
-          if (d?.calories) setCalorieGoal(Number(d.calories))
-          if (d?.protein) setProteinGoal(Number(d.protein))
-          localStorage.setItem(key, JSON.stringify({
-            calories: Number(d.calories) || 3500,
-            protein: Number(d.protein) || 180,
-            updatedAt: Date.now()
-          }))
-        }
-      } catch {
-        // Keep local goals when offline/slow.
-      }
-    })()
-
-    return () => { alive = false }
+    return () => {
+      alive = false
+      unsub()
+    }
   }, [user.uid])
 
   useEffect(() => {
@@ -211,14 +199,20 @@ export default function Dashboard() {
 
   const addMeal = async () => {
     if (!mealName || !calories) return
-    await addDoc(collection(db,'meals'), {
+    
+    // Optimistic update - clear form immediately
+    setMealName(''); setCalories(''); setProtein(''); setCost('')
+    setCostHint('')
+    
+    // Fire the save in background
+    addDoc(collection(db,'meals'), {
       uid: user.uid, name: mealName, calories: Number(calories),
       protein: Number(protein)||0,
       cost: cost === '' ? 0 : (Number(cost) || 0),
       date: today, createdAt: new Date()
+    }).catch(err => {
+      console.error('Add meal error:', err)
     })
-    setMealName(''); setCalories(''); setProtein(''); setCost('')
-    setCostHint('')
   }
 
   const getWeekKey = (dateStr) => {
@@ -230,20 +224,31 @@ export default function Dashboard() {
     return `${d.getUTCFullYear()}-W${String(weekNo).padStart(2, '0')}`
   }
 
-  const estimateCostUberEats = async () => {
+  const estimateCost = async (service = 'local') => {
     if (!mealName.trim()) return
     setEstimatingCost(true)
     setCostHint('')
     try {
-      const res = await fetch(`/api/pricing/ubereats/estimate?query=${encodeURIComponent(mealName.trim())}`)
+      const endpoint = service === 'local' ? '/api/pricing/estimate' : `/api/pricing/${service}/estimate`
+      const res = await fetch(`${endpoint}?query=${encodeURIComponent(mealName.trim())}`)
       const data = await res.json().catch(() => ({}))
+
       if (!res.ok) {
+        if (data.error?.includes('not configured') || data.error?.includes('not implemented')) {
+          // Fallback to local database if service APIs aren't configured
+          if (service !== 'local') {
+            return estimateCost('local')
+          }
+        }
         setCostHint(data?.error || 'Could not estimate cost')
         return
       }
+
       if (typeof data?.estimatedCost === 'number') {
         setCost(String(Math.round(data.estimatedCost)))
-        setCostHint('Estimated from Uber Eats')
+        const source = data.source === 'spoonacular_api' ? 'Spoonacular API' :
+                      service === 'ubereats' ? 'Uber Eats' : 'DoorDash'
+        setCostHint(`Estimated from ${source}`)
       } else {
         setCostHint('No estimate returned')
       }
@@ -254,37 +259,48 @@ export default function Dashboard() {
     }
   }
 
+  const estimateCostUberEats = () => estimateCost('ubereats')
+  const estimateCostDoorDash = () => estimateCost('doordash')
+
   const logWeight = async () => {
     if (!weight || loggingWeight) return
     setLoggingWeight(true)
-    try {
-      let photoUrl = ''
-      let photoPath = ''
+    
+    // Clear form immediately for better UX
+    setWeight('')
+    setPhotoFile(null)
+    setPhotoPreview('')
+    
+    // Fire the save in background
+    ;(async () => {
+      try {
+        let photoUrl = ''
+        let photoPath = ''
 
-      if (photoFile) {
-        const ext = photoFile.name.split('.').pop()?.toLowerCase() || 'jpg'
-        const path = `progressPhotos/${user.uid}/${today}-${Date.now()}.${ext}`
-        const storageRef = ref(storage, path)
-        await uploadBytes(storageRef, photoFile, { contentType: photoFile.type || 'image/jpeg' })
-        photoUrl = await getDownloadURL(storageRef)
-        photoPath = path
+        if (photoFile) {
+          const ext = photoFile.name.split('.').pop()?.toLowerCase() || 'jpg'
+          const path = `progressPhotos/${user.uid}/${today}-${Date.now()}.${ext}`
+          const storageRef = ref(storage, path)
+          await uploadBytes(storageRef, photoFile, { contentType: photoFile.type || 'image/jpeg' })
+          photoUrl = await getDownloadURL(storageRef)
+          photoPath = path
+        }
+
+        await addDoc(collection(db,'weights'), {
+          uid: user.uid,
+          weight: Number(weight),
+          date: today,
+          weekKey: getWeekKey(today),
+          photoUrl,
+          photoPath,
+          createdAt: new Date()
+        })
+      } catch (err) {
+        console.error('Log weight error:', err)
+      } finally {
+        setLoggingWeight(false)
       }
-
-      await addDoc(collection(db,'weights'), {
-        uid: user.uid,
-        weight: Number(weight),
-        date: today,
-        weekKey: getWeekKey(today),
-        photoUrl,
-        photoPath,
-        createdAt: new Date()
-      })
-      setWeight('')
-      setPhotoFile(null)
-      setPhotoPreview('')
-    } finally {
-      setLoggingWeight(false)
-    }
+    })()
   }
 
   const totalCalories  = meals.reduce((s, m) => s + m.calories, 0)
@@ -367,10 +383,20 @@ export default function Dashboard() {
             <div className="cost-row">
               <input className="field" placeholder="Cost (optional)" type="number"
                 value={cost} onChange={e => setCost(e.target.value)}/>
-              <button className="cost-est-btn" onClick={estimateCostUberEats} disabled={estimatingCost}>
-                <CurrencyDollarIcon className="cost-est-ic" />
-                {estimatingCost ? 'Estimating…' : 'Estimate'}
-              </button>
+              <div className="cost-est-buttons">
+                <button className="cost-est-btn cost-est-quick" onClick={() => estimateCost('local')} disabled={estimatingCost}>
+                  <CurrencyDollarIcon className="cost-est-ic" />
+                  {estimatingCost ? 'Estimating…' : 'Quick Est'}
+                </button>
+                <button className="cost-est-btn" onClick={estimateCostUberEats} disabled={estimatingCost}>
+                  <CurrencyDollarIcon className="cost-est-ic" />
+                  {estimatingCost ? 'Estimating…' : 'Uber'}
+                </button>
+                <button className="cost-est-btn" onClick={estimateCostDoorDash} disabled={estimatingCost}>
+                  <CurrencyDollarIcon className="cost-est-ic" />
+                  {estimatingCost ? 'Estimating…' : 'DoorDash'}
+                </button>
+              </div>
             </div>
             {costHint && <p className="cost-hint">{costHint}</p>}
             <button className="add-btn" onClick={addMeal}>
@@ -509,7 +535,7 @@ export default function Dashboard() {
       {editingMeal && (
         <MealEditModal meal={editingMeal} onClose={() => setEditingMeal(null)}/>
       )}
-      <ChatBot totalCalories={totalCalories} totalProtein={totalProtein}
+      <ChatBot userName={customName || user.email.split('@')[0]} totalCalories={totalCalories} totalProtein={totalProtein}
         calorieGoal={calorieGoal} proteinGoal={proteinGoal} meals={meals}/>
     </div>
   )

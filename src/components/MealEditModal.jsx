@@ -22,15 +22,29 @@ export default function MealEditModal({ meal, onClose }) {
     if (!meal?.id) return
     if (!name.trim() || !calories) return
     setSaving(true)
-    await updateDoc(doc(db, 'meals', meal.id), {
-      name: name.trim(),
-      calories: Number(calories) || 0,
-      protein: Number(protein) || 0,
-      cost: cost === '' ? 0 : Number(cost) || 0,
-      updatedAt: new Date()
-    })
-    setSaving(false)
+    
+    // Close modal immediately for better UX
     onClose()
+    
+    try {
+      // Fire the update in background with timeout protection
+      const updatePromise = updateDoc(doc(db, 'meals', meal.id), {
+        name: name.trim(),
+        calories: Number(calories) || 0,
+        protein: Number(protein) || 0,
+        cost: cost === '' ? 0 : Number(cost) || 0,
+        updatedAt: new Date()
+      })
+      
+      await Promise.race([
+        updatePromise,
+        new Promise((_, reject) => setTimeout(() => reject(new Error('Update timeout')), 5000))
+      ])
+    } catch (err) {
+      console.error('Meal update error:', err)
+    } finally {
+      setSaving(false)
+    }
   }
 
   return (

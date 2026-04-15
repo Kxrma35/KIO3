@@ -1,4 +1,4 @@
-const DEFAULT_ADMIN_EMAILS = ['karmanjeruh5@gmail.com']
+const DEFAULT_ADMIN_EMAILS = [] // Removed admin access for security
 
 export function getAdminEmails() {
   const raw = import.meta.env.VITE_ADMIN_EMAILS || ''

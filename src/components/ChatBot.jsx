@@ -2,12 +2,12 @@ import { useState } from 'react'
 import { CpuChipIcon, XMarkIcon, PaperAirplaneIcon } from '@heroicons/react/24/outline'
 import './ChatBot.css'
 
-function ChatBot({ totalCalories, totalProtein, calorieGoal, proteinGoal, meals }) {
+function ChatBot({ userName, totalCalories, totalProtein, calorieGoal, proteinGoal, meals }) {
   const [open, setOpen] = useState(false)
   const [messages, setMessages] = useState([
     {
       role: 'assistant',
-      content: `Hey! I'm your nutrition assistant. I can suggest meals, give you macro info, and help you hit your bulking goals. You've eaten ${totalCalories} kcal today — how can I help?`
+      content: `Hi, I'm ${userName}'s personal AI. How can I help you?`
     }
   ])
   const [input, setInput] = useState('')

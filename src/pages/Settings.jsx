@@ -36,6 +36,7 @@ export default function Settings() {
   const [phase, setPhase] = useState('bulk') // bulk | cut | maintain
   const [weightKg, setWeightKg] = useState('')
   const [autoTargets, setAutoTargets] = useState(true)
+  const [customName, setCustomName] = useState('')
 
   const preview = useMemo(() => calcTargets({ phase, weightKg }), [phase, weightKg])
 
@@ -53,6 +54,7 @@ export default function Settings() {
             setPhase(d.phase || 'bulk')
             setWeightKg(d.weightKg ?? '')
             setAutoTargets(d.autoTargets ?? true)
+            setCustomName(d.customName ?? '')
           }
         } catch {
           // No cached doc yet; fall through to network fetch.
@@ -65,6 +67,7 @@ export default function Settings() {
           setPhase(d.phase || 'bulk')
           setWeightKg(d.weightKg ?? '')
           setAutoTargets(d.autoTargets ?? true)
+          setCustomName(d.customName ?? '')
         }
       } finally {
         if (alive) setHydrating(false)
@@ -79,6 +82,7 @@ export default function Settings() {
       phase,
       weightKg: weightKg === '' ? '' : Number(weightKg),
       autoTargets,
+      customName: customName.trim() || '',
       updatedAt: new Date()
     }
 
@@ -88,8 +92,18 @@ export default function Settings() {
       patch.protein = targets.protein || 180
     }
 
-    await setDoc(doc(db, 'goals', user.uid), patch, { merge: true })
-    setSaving(false)
+    try {
+      // Use a timeout to prevent hanging
+      const savePromise = setDoc(doc(db, 'goals', user.uid), patch, { merge: true })
+      await Promise.race([
+        savePromise,
+        new Promise((_, reject) => setTimeout(() => reject(new Error('Save timeout')), 5000))
+      ])
+    } catch (err) {
+      console.error('Save error:', err)
+    } finally {
+      setSaving(false)
+    }
   }
 
   return (
@@ -101,6 +115,23 @@ export default function Settings() {
         <h2 className="settings-title">
           <Cog6ToothIcon className="settings-title-icon" /> Settings
         </h2>
+      </div>
+
+      <div className="settings-card">
+        <h3 className="section-title">AI Assistant</h3>
+        <div className="settings-row">
+          <label className="settings-label" htmlFor="customName">AI Name</label>
+          <input
+            id="customName"
+            className="field"
+            placeholder="e.g. Alex, Coach, etc."
+            type="text"
+            value={customName}
+            onChange={(e) => setCustomName(e.target.value)}
+            maxLength="30"
+          />
+          <p className="settings-hint">Give your AI a custom name. Leave blank to use your username.</p>
+        </div>
       </div>
 
       <div className="settings-card">
