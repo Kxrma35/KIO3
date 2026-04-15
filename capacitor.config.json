@@ -1,8 +1,0 @@
-{
-  "appId": "com.karma.bulkingtracker",
-  "appName": "Bulking Tracker",
-  "webDir": "dist",
-  "server": {
-    "androidScheme": "https"
-  }
-}
